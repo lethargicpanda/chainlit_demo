@@ -16,13 +16,15 @@ model_kwargs = {
 
 @cl.on_message
 async def on_message(message: cl.Message):
-    # Your custom logic goes here...
+    # Maintain an array of messages in the user session
+    message_history = cl.user_session.get("message_history", [])
+    message_history.append({"role": "user", "content": message.content})
 
     response_message = cl.Message(content="")
     await response_message.send()
 
     stream = await client.chat.completions.create(
-        messages=[{"role": "user", "content": message.content}], 
+        messages=message_history, 
         stream=True, **model_kwargs
     )
 
@@ -31,3 +33,7 @@ async def on_message(message: cl.Message):
             await response_message.stream_token(token)
 
     await response_message.update()
+
+    # Record the AI;s resposne in the history
+    message_history.append({"role": "assistant", "content": response_message.content})
+    cl.user_session.set("message_history", message_history)
