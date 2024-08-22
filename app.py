@@ -18,14 +18,16 @@ model_kwargs = {
 async def on_message(message: cl.Message):
     # Your custom logic goes here...
 
-    response = await client.chat.completions.create(
-        messages = [{"role": "user", "content": message.content}],
-        **model_kwargs
+    response_message = cl.Message(content="")
+    await response_message.send()
+
+    stream = await client.chat.completions.create(
+        messages=[{"role": "user", "content": message.content}], 
+        stream=True, **model_kwargs
     )
 
-    response_content = response.choices[0].message.content
+    async for part in stream:
+        if token := part.choices[0].delta.content or "":
+            await response_message.stream_token(token)
 
-    # Send a response back to the user...
-    await cl.Message(
-        content = response_content,
-    ).send()
+    await response_message.update()
