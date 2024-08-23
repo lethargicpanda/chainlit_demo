@@ -4,15 +4,24 @@ import os
 
 api_key = os.getenv("OPEN_API_KEY")
 
-endpoint_url = "https://api.openai.com/v1"
-client = openai.AsyncClient(api_key=api_key, base_url=endpoint_url)
+# endpoint_url = "https://api.openai.com/v1"
 
 # https://platform.openai.com/docs/models/gpt-4o
+# model_kwargs = {
+#     "model": "chatgpt-4o-latest",
+#     "temperature": 0.3,
+#     "max_tokens": 500
+# }
+
+endpoint_url = "http://localhost:11434/v1"
+
 model_kwargs = {
-    "model": "chatgpt-4o-latest",
-    "temperature": 0.3,
-    "max_tokens": 500
+    "model": "gemma2",
+    # "temperature": 0.3,
+    # "max_tokens": 500
 }
+
+client = openai.AsyncClient(api_key=api_key, base_url=endpoint_url)
 
 @cl.on_message
 async def on_message(message: cl.Message):
